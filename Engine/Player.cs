@@ -20,7 +20,12 @@ namespace Engine
     {
         public int Gold { get; set; }
         public int ExperiencePoints { get; set; }
-        public int Level { get; set; }
+        //自动更新等级值 public int Level { get; set; }
+        public int Level
+        {
+            //+1, so the player will start out a level 1, and not 0.
+            get { return ((ExperiencePoints / 100) + 1); }
+        }
 
         public Location CurrentLocation { get; set; }
 
@@ -29,13 +34,13 @@ namespace Engine
         public List<PlayerQuest> Quests { get; set; }
 
         #region 构造函数
-        public Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints, int level
+        public Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints//, int level
             ) :
             base(currentHitPoints, maximumHitPoints)
         {
             Gold = gold;
             ExperiencePoints = experiencePoints;
-            Level = level;
+            //去掉设置等级属性后，不用也不能赋值了 Level = level;
 
             Inventory = new List<InventoryItem>();
             Quests = new List<PlayerQuest>();
@@ -178,5 +183,7 @@ namespace Engine
             }
         }
         #endregion
+
+
     }
 }

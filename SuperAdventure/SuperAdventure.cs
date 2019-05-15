@@ -22,7 +22,8 @@ namespace SuperAdventure
             InitializeComponent();
 
             //通过构造函数初始化属性，不用一个一个手写赋值了
-            _player = new Player(10, 10, 20, 0, 1);
+            //_player = new Player(10, 10, 20, 0, 1);更改构造函数后也不需要实例化时传参了
+            _player = new Player(10, 10, 20, 0);
 
             /*
                 move the player to their home. Since the MoveTo() function expects a location as the parameter, 
@@ -40,10 +41,12 @@ namespace SuperAdventure
             //_player.ExperiencePoints = 0;
             //_player.Level = 1;
 
-            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-            lblGold.Text = _player.Gold.ToString();
-            lblExperience.Text = _player.ExperiencePoints.ToString();
-            lblLevel.Text = _player.Level.ToString();
+            //lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            //lblGold.Text = _player.Gold.ToString();
+            //lblExperience.Text = _player.ExperiencePoints.ToString();
+            //lblLevel.Text = _player.Level.ToString();
+            //通过方法更新所有状态，同时也保证了属性调用的时候，根据计算自动更新
+            UpdatePlayerStats();
         }
 
         private void btnNorth_Click(object sender, EventArgs e)
@@ -461,6 +464,8 @@ namespace SuperAdventure
             // Refresh player's potions combobox
             UpdatePotionListInUI();
             #endregion
+
+            UpdatePlayerStats();
         }
 
         #region  Update inventory list in UI 更新界面的冒险列表
@@ -653,10 +658,13 @@ namespace SuperAdventure
                     }
                 }
                 // Refresh player information and inventory controls
-                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-                lblGold.Text = _player.Gold.ToString();
-                lblExperience.Text = _player.ExperiencePoints.ToString();
-                lblLevel.Text = _player.Level.ToString();
+                //lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+                //lblGold.Text = _player.Gold.ToString();
+                //lblExperience.Text = _player.ExperiencePoints.ToString();
+                //lblLevel.Text = _player.Level.ToString();
+
+                UpdatePlayerStats();
+
                 UpdateInventoryListInUI();
                 UpdateWeaponListInUI();
                 UpdatePotionListInUI();
@@ -696,8 +704,17 @@ namespace SuperAdventure
             }
             ScrollToBottomOfMessages();
         }
-    
 
+        #region 更新玩家所有状态
+        private void UpdatePlayerStats()
+        {
+            // Refresh player information and inventory controls
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            lblGold.Text = _player.Gold.ToString();
+            lblExperience.Text = _player.ExperiencePoints.ToString();
+            lblLevel.Text = _player.Level.ToString();
+        }
+        #endregion
         private void btnUsePotion_Click(object sender, EventArgs e)
         {
             // Get the currently selected potion from the combobox
