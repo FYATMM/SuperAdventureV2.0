@@ -22,7 +22,8 @@ namespace Engine
         //继承类需要给基类的构造函数传参
         public HealingPotion(int id, string name, string namePlural, int amountToHeal) : base(id, name, namePlural)
         {
-               AmountToHeal = amountToHeal;
+               AmountToHeal = amountToHeal;        
+            //test git version control
         }
     }
 }
