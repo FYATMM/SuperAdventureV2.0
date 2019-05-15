@@ -15,7 +15,6 @@ namespace Engine
         {
             Details = details;
             Quantity = quantity;
-            //git test 2nd times
         }
     }
 }
