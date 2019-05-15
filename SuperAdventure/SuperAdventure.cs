@@ -46,7 +46,7 @@ namespace SuperAdventure
             //lblExperience.Text = _player.ExperiencePoints.ToString();
             //lblLevel.Text = _player.Level.ToString();
             //通过方法更新所有状态，同时也保证了属性调用的时候，根据计算自动更新
-            UpdatePlayerStats();
+            UpdatePlayerStats(); 
         }
 
         private void btnNorth_Click(object sender, EventArgs e)
