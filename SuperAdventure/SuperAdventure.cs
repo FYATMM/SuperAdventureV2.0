@@ -288,6 +288,8 @@ namespace SuperAdventure
                             #endregion
 
                             #region 重构后的，完成关卡的奖励
+                            _player.AddExperiencePoints(newLocation.QuestAvailableHere.RewardExperiencePoints);
+                            _player.Gold += newLocation.QuestAvailableHere.RewardGold;
                             // Add the reward item to the player's inventory
                             _player.AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);
                             #endregion
@@ -642,7 +644,8 @@ namespace SuperAdventure
                     Environment.NewLine;
                 ScrollToBottomOfMessages();
                 // Give player experience points for killing the monster
-                _player.ExperiencePoints += _currentMonster.RewardExperiencePoints;
+                ////////_player.ExperiencePoints += _currentMonster.RewardExperiencePoints;
+                _player.AddExperiencePoints(_currentMonster.RewardExperiencePoints);
                 rtbMessages.Text += "You receive " +
                     _currentMonster.RewardExperiencePoints.ToString() +
                         " experience points" + Environment.NewLine;

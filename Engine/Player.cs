@@ -20,7 +20,8 @@ namespace Engine
     public class Player : LivingCreature
     {
         public int Gold { get; set; }
-        public int ExperiencePoints { get; set; }
+        //设置经验值属性的设置为private，只有通过player的方法才能设置，保证解决方案中所有的经验值增加都按一个逻辑来
+        public int ExperiencePoints { get; private set; }
         //自动更新等级值 public int Level { get; set; }
         public int Level
         {
@@ -68,6 +69,13 @@ namespace Engine
             player.CurrentLocation = World.LocationByID(World.LOCATION_ID_HOME);
 
             return player;
+        }
+
+        //出里经验值属性的方法
+        public void AddExperiencePoints(int experiencePointsToAdd)
+        {
+            ExperiencePoints += experiencePointsToAdd;
+            MaximumHitPoints = (Level * 10);
         }
 
         //读取xml保存的玩家数据
