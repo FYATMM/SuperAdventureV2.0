@@ -551,15 +551,39 @@ namespace SuperAdventure
                 btnUseWeapon.Visible = false;
             }
             else
+            //{
+            //    cboWeapons.DataSource = weapons;
+            //    cboWeapons.DisplayMember = "Name";
+            //    cboWeapons.ValueMember = "ID";
+
+            //    cboWeapons.SelectedIndex = 0;
+            //}
             {
+                //手动断开/连接一个事件到对应的事件处理方法，事件通过-=、+=来断开或连接
+                //只希望手动更改后，才处理，而不希望第一次设置的时候
+                //After the DataSource is set, we add the event handler function back to the SelectedIndex-Changed event (with the  +=  operator). This way, the function will run when the player changes the value.
+                cboWeapons.SelectedIndexChanged -=  cboWeapons_SelectedIndexChanged;
                 cboWeapons.DataSource = weapons;
+                cboWeapons.SelectedIndexChanged +=  cboWeapons_SelectedIndexChanged;
+
                 cboWeapons.DisplayMember = "Name";
                 cboWeapons.ValueMember = "ID";
 
-                cboWeapons.SelectedIndex = 0;
+                if (_player.CurrentWeapon != null)
+                {
+                    cboWeapons.SelectedItem = _player.CurrentWeapon;
+                }
+                else
+                {
+                    cboWeapons.SelectedIndex = 0;
+                }
             }
         }
         #endregion
+        private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _player.CurrentWeapon = (Weapon)cboWeapons.SelectedItem;
+        }
 
         #region Update potion list in UI 更新界面的解药列表
         private void UpdatePotionListInUI()
@@ -773,23 +797,6 @@ namespace SuperAdventure
             lblHitPoints.Text = _player.CurrentHitPoints.ToString();
             UpdateInventoryListInUI();
             UpdatePotionListInUI();
-        }
-
-        private void SuperAdventure_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
-
-        private void rtbMessages_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void btnNorth_Click_1(object sender, EventArgs e)

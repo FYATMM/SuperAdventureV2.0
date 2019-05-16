@@ -148,7 +148,7 @@
             this.cboPotions.Name = "cboPotions";
             this.cboPotions.Size = new System.Drawing.Size(121, 20);
             this.cboPotions.TabIndex = 10;
-            this.cboPotions.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            ////this.cboPotions.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectedIndexChanged);
             // 
             // btnUseWeapon
             // 
@@ -228,7 +228,7 @@
             this.rtbMessages.Size = new System.Drawing.Size(360, 286);
             this.rtbMessages.TabIndex = 18;
             this.rtbMessages.Text = "";
-            this.rtbMessages.TextChanged += new System.EventHandler(this.rtbMessages_TextChanged);
+            ////this.rtbMessages.TextChanged += new System.EventHandler(this.rtbMessages_TextChanged);
             // 
             // dgvInventory
             // 
@@ -292,7 +292,7 @@
             this.Text = "FY\'s adventure";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SuperAdventure_FormClosing);
-            this.Load += new System.EventHandler(this.SuperAdventure_Load);
+            ////this.Load += new System.EventHandler(this.SuperAdventure_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvInventory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvQuests)).EndInit();
             this.ResumeLayout(false);
