@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,24 +18,38 @@ namespace SuperAdventure
 
         private Monster _currentMonster;
 
+        private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
+
         public SuperAdventure()
         {
             InitializeComponent();
 
+            ////////读取xml创建玩家
             //通过构造函数初始化属性，不用一个一个手写赋值了
             //_player = new Player(10, 10, 20, 0, 1);更改构造函数后也不需要实例化时传参了
-            _player = new Player(10, 10, 20, 0);
+            //////// _player = new Player(10, 10, 20, 0);
 
             /*
                 move the player to their home. Since the MoveTo() function expects a location as the parameter, 
                 we need to use the World.GetLocationByID() function to get the correct location. 
              */
-            MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+            ////////MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
             /*
                we add an item to the player's inventory – a rusty sword. They'll need something to fight with when they encounter their first monster.
              */
-            _player.Inventory.Add(new InventoryItem(World.ItemByID(World.ITEM_ID_RUSTY_SWORD), 1));
+            ////////_player.Inventory.Add(new InventoryItem(World.ItemByID(World.ITEM_ID_RUSTY_SWORD), 1));
 
+            ////////读取xml创建玩家，判断文件存在不存在
+            if (File.Exists(PLAYER_DATA_FILE_NAME))
+            {
+                _player = Player.CreatePlayerFromXmlString(
+                    File.ReadAllText(PLAYER_DATA_FILE_NAME));
+            }
+            else
+            {
+                _player = Player.CreateDefaultPlayer();
+            }
+            MoveTo(_player.CurrentLocation);
             //_player.CurrentHitPoints = 10;
             //_player.MaximumHitPoints = 10;
             //_player.Gold = 20;
@@ -803,6 +818,10 @@ namespace SuperAdventure
             rtbMessages.ScrollToCaret();
         }
 
+        private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXmlString());
+        }
     }
 }
 

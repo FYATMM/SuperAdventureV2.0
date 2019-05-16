@@ -291,6 +291,7 @@
             this.Name = "SuperAdventure";
             this.Text = "FY\'s adventure";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SuperAdventure_FormClosing);
             this.Load += new System.EventHandler(this.SuperAdventure_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvInventory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvQuests)).EndInit();
