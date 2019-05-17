@@ -7,12 +7,11 @@ using System.ComponentModel;
 
 namespace Engine
 {
+    //继承要实现INotifyPropertyChanged接口
     public class InventoryItem : INotifyPropertyChanged
     {
-        //public Item Details { get; set; }
-        //public int Quantity { get; set; }
+        #region 属性
         //变为带变量的属性，设置变量时触发抛出事件的方法
-
         private Item _details;
         private int _quantity;
 
@@ -44,16 +43,16 @@ namespace Engine
                 return Quantity > 1 ? Details.NamePlural : Details.Name;
             }
         }
-
+        #endregion
+        #region 构造函数
         public InventoryItem(Item details, int quantity)
         {
             Details = details;
             Quantity = quantity;
-            //git test 2nd times s
         }
-
+        #endregion
+        #region 事件及事件处理方法，INotifyPropertyChanged接口的实现
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnPropertyChanged(string name)
         {
             if (PropertyChanged != null)
@@ -61,5 +60,6 @@ namespace Engine
                 PropertyChanged(this, new PropertyChangedEventArgs(name));
             }
         }
+        #endregion
     }
 }

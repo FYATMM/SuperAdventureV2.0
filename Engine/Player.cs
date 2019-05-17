@@ -8,23 +8,10 @@ using System.ComponentModel;
 
 namespace Engine
 {
-    //public class Player
-    //{
-    //    public int CurrentHitPoints { get; set; }
-    //    public int MaxinumHitPoints { get; set; }
-    //    public int Gold { get; set; }
-    //    public int ExperiencePoints { get; set; }
-    //    public int Level { get; set; }
-    //}
-
     //使用继承避免重复，继承自LivingCreature
     public class Player : LivingCreature
     {
-        ////现在是一个自动属性，没有地方放代码处理设置属性时调用事件处理方法的地方，要改为带变量的属性
-        //public int Gold { get; set; }
-        ////设置经验值属性的设置为private，只有通过player的方法才能设置，保证解决方案中所有的经验值增加都按一个逻辑来
-        //public int ExperiencePoints { get; private set; }
-
+        #region 属性(可绑定属性 及 私有属性 及 属性子集)，现在是一个自动属性，没有地方放代码处理设置属性时调用事件处理方法的地方，要改为带变量的属性；设置经验值属性的设置为private，只有通过player的方法才能设置，保证解决方案中所有的经验值增加都按一个逻辑来
         private int _gold;
         private int _experiencePoints;
 
@@ -49,24 +36,20 @@ namespace Engine
             }
         }
 
-        //自动更新等级值 public int Level { get; set; }
-        public int Level
+
+        public int Level  //自动更新等级值 public int Level { get; set; }
         {
-            //+1, so the player will start out a level 1, and not 0.
-            get { return ((ExperiencePoints / 100) + 1); }
+            get { return ((ExperiencePoints / 100) + 1); } //+1, so the player will start out a level 1, and not 0.
         }
 
         public Location CurrentLocation { get; set; }
 
-        //下拉框默认值存储
-        public Weapon CurrentWeapon { get; set; }
+        public Weapon CurrentWeapon { get; set; }        //下拉框默认值存储
 
-        //list or collection property
-        ////////public List<InventoryItem> Inventory { get; set; } 
-        //变为可绑定的，需要改变数据类型
-        public BindingList<InventoryItem> Inventory { get; set; }
+        //list or collection property       
+        public BindingList<InventoryItem> Inventory { get; set; } //变为可绑定的，需要改变数据类型
         public BindingList<PlayerQuest> Quests { get; set; }
-
+        //属性子集
         public List<Weapon> Weapons
         {
             get
@@ -85,21 +68,10 @@ namespace Engine
                   x => x.Details as HealingPotion).ToList();
             }
         }
+        #endregion
 
-        #region 构造函数
-        //public Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints//, int level
-        //    ) :
-        //    base(currentHitPoints, maximumHitPoints)
-        //{
-        //    Gold = gold;
-        //    ExperiencePoints = experiencePoints;
-        //    //去掉设置等级属性后，不用也不能赋值了 Level = level;
-
-        //    Inventory = new List<InventoryItem>();
-        //    Quests = new List<PlayerQuest>();
-        //}
-
-        //构造函数设置为private，通过方法调用,可以不用生成对象直接在类内部调用
+        #region 构造函数，构造函数设置为private，通过方法调用,可以不用生成对象直接在类内部调用，通过XML构造，没有XML用设定好数据的构造方法
+        //去掉设置等级属性后，不用也不能赋值了 Level = level;
         private Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
             Gold = gold;
@@ -117,13 +89,6 @@ namespace Engine
             player.CurrentLocation = World.LocationByID(World.LOCATION_ID_HOME);
 
             return player;
-        }
-
-        //出里经验值属性的方法
-        public void AddExperiencePoints(int experiencePointsToAdd)
-        {
-            ExperiencePoints += experiencePointsToAdd;
-            MaximumHitPoints = (Level * 10);
         }
 
         //读取xml保存的玩家数据
@@ -181,73 +146,42 @@ namespace Engine
         }
         #endregion
 
+        #region 方法
+        #region  处里经验值属性的方法
+        public void AddExperiencePoints(int experiencePointsToAdd)
+        {
+            ExperiencePoints += experiencePointsToAdd;
+            MaximumHitPoints = (Level * 10);
+        }
+        #endregion
+
+        //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
+        //左面是遍历列表的变量的声明，右面是条件表达式
+        //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
+        //还可以再简化，就有点复杂了，以后再说
+        //可以通过SingleOrDefault返回列表的一个元素，需要检查是否为null，只能有一个匹配的元素返回
+
         #region  从UI的长代码中，重构出来，判断是否有进入一个位置所需要的物品
         public bool HasRequiredItemToEnterThisLocation(Location location)
         {
             if (location.ItemRequiredToEnter == null)
             {
-                // There is no required item for this location,  so return "true"
-                return true;
+                return true;// There is no required item for this location,  so return "true"
             }
 
-            // See if the player has the required item in their inventory
-            //用LINQ代替foreach
-            //foreach (InventoryItem ii in Inventory)
-            //{
-            //    if (ii.Details.ID == location.ItemRequiredToEnter.ID)
-            //    {
-            //        // We found the required item, so return "true"
-            //        return true;
-            //    }
-            //}
-
-            // We didn't find the required item in their inventory, so return "false"
-            //// return false;代替佛reach后可以返回false，不需要了
-
-            //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-            //左面是遍历列表的变量的声明，右面是条件表达式
-            //////return Inventory.Exists(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
-            //////由于更改了属性的数据类型，对应的方法不能使用了用Any替代
-            return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
+            // See if the player has the required item in their inventory         
+            return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);//// return false;代替forreach后可以返回false，不需要了
         }
         #endregion
 
         #region 从UI的长代码中，重构出来，判断玩家有没有这个关卡及这个关卡是否完成
         public bool HasThisQuest(Quest quest)
         {
-            //用LINQ代替foreach
-            //foreach (PlayerQuest playerQuest in Quests)
-            //{
-            //    if (playerQuest.Details.ID == quest.ID)
-            //    {
-            //        return true;
-            //    }
-            //}
-            //return false;
-
-            //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-            //左面是遍历列表的变量的声明，右面是条件表达式
-
             return Quests.Any(pq => pq.Details.ID == quest.ID);
         }
 
-        //怎么用LINQ代替？取列表中元素的成员
         public bool CompletedThisQuest(Quest quest)
         {
-
-            //用LINQ代替foreach
-            //foreach (PlayerQuest playerQuest in Quests)
-            //{
-            //    if (playerQuest.Details.ID == quest.ID)
-            //    {
-            //        return playerQuest.IsCompleted;
-            //    }
-            //}
-            //return false;
-
-            //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-            //左面是遍历列表的变量的声明，右面是条件表达式
-            //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
             return Quests.Any(pq => pq.Details.ID == quest.ID && pq.IsCompleted);
         }
         #endregion
@@ -255,49 +189,13 @@ namespace Engine
         #region 从UI的长代码中，重构出来，判断玩家是否有所有的关卡需要的物品
         public bool HasAllQuestCompletionItems(Quest quest)
         {
-            //用LINQ代替foreach
-            //// See if the player has all the items needed to complete the quest here
-            //foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
-            //{
-            //    bool foundItemInPlayersInventory = false;
-
-            //    // Check each item in the player's inventory, to see if they have it, and enough of it
-            //    foreach (InventoryItem ii in Inventory)
-            //    {
-            //        // The player has the item in their inventory
-            //        if (ii.Details.ID == qci.Details.ID)
-            //        {
-            //            foundItemInPlayersInventory = true;
-            //            // The player does not have enough of this item to complete the quest
-            //            if (ii.Quantity < qci.Quantity)
-            //            {
-            //                return false;
-            //            }
-            //        }
-            //    }
-            //    // The player does not have any of this quest completion item in their inventory
-            //    if (!foundItemInPlayersInventory)
-            //    {
-            //        return false;
-            //    }
-            //}
-            //// If we got here, then the player must have all the required items, and enough of them, to complete the quest.
-            //return true;
-
-            //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-            //左面是遍历列表的变量的声明，右面是条件表达式
-            //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
-            //还可以再简化，就有点复杂了，以后再说
-
             // See if the player has all the items needed to complete  the quest here
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                // Check each item in the player's inventory, to see if they have it, and enough of it
-                //////由于更改了属性的数据类型，对应的方法不能使用了用Any替代
-                //////if (!Inventory.Exists(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
-                if (!Inventory.Any(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
+                // Check each item in the player's inventory, to see if they have it, and enough of it            
+                if (!Inventory.Any(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity)) //if (!Inventory.Exists(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))//由于更改了属性的数据类型，对应的方法不能使用了用Any替代
                 {
-                    return false;
+                    return false;// The player does not have any of this quest completion item in their inventory
                 }
             }
             return true;
@@ -309,73 +207,29 @@ namespace Engine
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                //用LINQ代替foreach
-                //foreach (InventoryItem ii in Inventory)
-                //{
-                //    if (ii.Details.ID == qci.Details.ID)
-                //    {
-                //        // Subtract the quantity from the player's inventory that was needed to complete the quest
-                //        ii.Quantity -= qci.Quantity;
-                //        break;
-                //    }
-                //}
-
-                //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-                //左面是遍历列表的变量的声明，右面是条件表达式
-                //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
-                //还可以再简化，就有点复杂了，以后再说
-                //可以通过SingleOrDefault返回列表的一个元素，需要检查是否为null，只能有一个匹配的元素返回
                 InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == qci.Details.ID);
 
                 if (item != null)
                 {
-                    // Subtract the quantity from the player's inventory that was needed to complete the quest
-                    ////item.Quantity -= qci.Quantity;
-                    RemoveItemFromInventory(item.Details, qci.Quantity);
+                    RemoveItemFromInventory(item.Details, qci.Quantity);// Subtract the quantity from the player's inventory that was needed to complete the quest
                 }
             }
         }
         #endregion
 
-        #region 从UI的长代码中，重构出来，完成关卡的奖励
-        ////////public void AddItemToInventory(Item itemToAdd)
-        public void AddItemToInventory(Item itemToAdd ,  int quantity = 1)
+        #region 从UI的长代码中，重构出来，完成关卡的奖励物品，并抛出清单变化事件
+        public void AddItemToInventory(Item itemToAdd, int quantity = 1)
         {
-            //用LINQ代替foreach
-            //foreach (InventoryItem ii in Inventory)
-            //{
-            //    if (ii.Details.ID == itemToAdd.ID)
-            //    {
-            //        // They have the item in their inventory, so increase the quantity by one
-            //        ii.Quantity++;
-
-            //        return; // We added the item, and are done, so get out of this function
-            //    }
-            //}
-            //// They didn't have the item, so add it to their inventory, with a quantity of 1
-            //Inventory.Add(new InventoryItem(itemToAdd, 1));
-
-            //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-            //左面是遍历列表的变量的声明，右面是条件表达式
-            //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
-            //还可以再简化，就有点复杂了，以后再说
-            //可以通过SingleOrDefault返回列表的一个元素，需要检查是否为null，只能有一个匹配的元素返回
-
             InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToAdd.ID);
 
             if (item == null)
             {
-                // They didn't have the item, so add it to their inventory, with a quantity of 1
-                ////Inventory.Add(new InventoryItem(itemToAdd, 1));
-                Inventory.Add(new InventoryItem(itemToAdd, quantity));
+                Inventory.Add(new InventoryItem(itemToAdd, quantity));// They didn't have the item, so add it to their inventory, with  quantity parameter   
             }
             else
             {
-                // They have the item in their inventory, so increase the quantity by one
-                ////item.Quantity++;
-                item.Quantity += quantity;
+                item.Quantity += quantity;// They have the item in their inventory, so increase the quantity by quantity parameter 
             }
-            ////////
             RaiseInventoryChangedEvent(itemToAdd);
         }
         #endregion
@@ -386,26 +240,10 @@ namespace Engine
             // Find the quest in the player's quest list
             foreach (PlayerQuest pq in Quests)
             {
-                //用LINQ代替foreach
-                //if (pq.Details.ID == quest.ID)
-                //{
-                //    // Mark it as completed
-                //    pq.IsCompleted = true;
-
-                //    // We found the quest, and marked it complete, so get  out of this function
-                //    return;
-                //}
-
-                //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
-                //左面是遍历列表的变量的声明，右面是条件表达式
-                //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
-                //还可以再简化，就有点复杂了，以后再说
-                //可以通过SingleOrDefault返回列表的一个元素，需要检查是否为null，只能有一个匹配的元素返回
-                // Find the quest in the player's quest list
-                PlayerQuest playerQuest = Quests.SingleOrDefault(pq2 => pq2.Details.ID == quest.ID);
+                PlayerQuest playerQuest = Quests.SingleOrDefault(pq2 => pq2.Details.ID == quest.ID);// Find the quest in the player's quest list
                 if (playerQuest != null)
                 {
-                    playerQuest.IsCompleted = true;
+                    playerQuest.IsCompleted = true;// Mark it as completed
                 }
             }
         }
@@ -504,6 +342,7 @@ namespace Engine
         }
         #endregion
 
+        #region 从清单中移除物品并抛出清单变化事件
         public void RemoveItemFromInventory(Item itemToRemove, int quantity = 1)
         {
             InventoryItem item = Inventory.SingleOrDefault(
@@ -531,6 +370,9 @@ namespace Engine
                 RaiseInventoryChangedEvent(itemToRemove);
             }
         }
+        #endregion
+
+        #region 抛出清单变化事件
         private void RaiseInventoryChangedEvent(Item item)
         {
             if (item is Weapon)
@@ -542,7 +384,8 @@ namespace Engine
                 OnPropertyChanged("Potions");
             }
         }
-
+        #endregion
+        #endregion
 
     }
 }

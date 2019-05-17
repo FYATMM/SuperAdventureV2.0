@@ -6,15 +6,6 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    //class Weapon
-    //{
-    //    public int ID { get; set; }
-    //    public string Name { get; set; }
-    //    public string NamePlural { get; set; }
-    //    public int MinimumDamage { get; set; }
-    //    public int MaximumDamage { get; set; }
-    //}
-
     //使用继承避免重复，继承自item
    public  class Weapon : Item
     {

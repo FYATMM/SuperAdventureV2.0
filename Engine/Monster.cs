@@ -6,17 +6,6 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    //class Monster
-    //{
-    //    public int ID { get; set; }
-    //    public string Name { get; set; }
-    //    public int MaximumHitPoint { get; set; }
-    //    public int CurrentHitPoint { get; set; }
-    //    public int MaximumDamage { get; set; }
-    //    public int RewordExperiencePoints { get; set; }
-    //    public int RewordGold { get; set; }
-    //}
-
     //使用继承避免重复，继承自LivingCreature
     public class Monster : LivingCreature
     {
