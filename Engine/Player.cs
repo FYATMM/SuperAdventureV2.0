@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.ComponentModel;
 
 namespace Engine
 {
@@ -61,8 +62,10 @@ namespace Engine
         public Weapon CurrentWeapon { get; set; }
 
         //list or collection property
-        public List<InventoryItem> Inventory { get; set; }
-        public List<PlayerQuest> Quests { get; set; }
+        ////////public List<InventoryItem> Inventory { get; set; } 
+        //变为可绑定的，需要改变数据类型
+        public BindingList<InventoryItem> Inventory { get; set; }
+        public BindingList<PlayerQuest> Quests { get; set; }
 
         #region 构造函数
         //public Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints//, int level
@@ -83,8 +86,8 @@ namespace Engine
             Gold = gold;
             ExperiencePoints = experiencePoints;
 
-            Inventory = new List<InventoryItem>();
-            Quests = new List<PlayerQuest>();
+            Inventory = new BindingList<InventoryItem>();
+            Quests = new BindingList<PlayerQuest>();
         }
 
         //默认玩家数据
@@ -184,7 +187,9 @@ namespace Engine
 
             //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
             //左面是遍历列表的变量的声明，右面是条件表达式
-            return Inventory.Exists(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
+            //////return Inventory.Exists(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
+            //////由于更改了属性的数据类型，对应的方法不能使用了用Any替代
+            return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
         }
         #endregion
 
@@ -204,7 +209,7 @@ namespace Engine
             //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
             //左面是遍历列表的变量的声明，右面是条件表达式
 
-            return Quests.Exists(pq => pq.Details.ID == quest.ID);
+            return Quests.Any(pq => pq.Details.ID == quest.ID);
         }
 
         //怎么用LINQ代替？取列表中元素的成员
@@ -224,7 +229,7 @@ namespace Engine
             //lambda表达式中的ii就是foreach中的ii，右面是if条件中的条件
             //左面是遍历列表的变量的声明，右面是条件表达式
             //lambda表达式后面还可以再加条件，可以同时再判断元素中的成员
-            return Quests.Exists(pq => pq.Details.ID == quest.ID && pq.IsCompleted);
+            return Quests.Any(pq => pq.Details.ID == quest.ID && pq.IsCompleted);
         }
         #endregion
 
@@ -269,7 +274,9 @@ namespace Engine
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
                 // Check each item in the player's inventory, to see if they have it, and enough of it
-                if (!Inventory.Exists(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
+                //////由于更改了属性的数据类型，对应的方法不能使用了用Any替代
+                //////if (!Inventory.Exists(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
+                if (!Inventory.Any(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
                 {
                     return false;
                 }

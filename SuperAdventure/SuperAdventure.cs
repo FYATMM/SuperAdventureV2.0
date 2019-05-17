@@ -56,6 +56,39 @@ namespace SuperAdventure
             lblExperience.DataBindings.Add("Text", _player, "ExperiencePoints");
             lblLevel.DataBindings.Add("Text", _player, "Level");
 
+            dgvInventory.RowHeadersVisible = false;
+            dgvInventory.AutoGenerateColumns = false;
+            dgvInventory.DataSource = _player.Inventory;
+            dgvInventory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Name",
+                Width = 197,
+                DataPropertyName = "Description"
+            });
+            dgvInventory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Quantity",
+                DataPropertyName = "Quantity"
+            });
+
+            dgvQuests.RowHeadersVisible = false;
+            dgvQuests.AutoGenerateColumns = false;
+
+            dgvQuests.DataSource = _player.Quests;
+
+            dgvQuests.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Name",
+                Width = 197,
+                DataPropertyName = "Name"
+            });
+
+            dgvQuests.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Done?",
+                DataPropertyName = "IsCompleted"
+            });
+
             MoveTo(_player.CurrentLocation);
             //_player.CurrentHitPoints = 10;
             //_player.MaximumHitPoints = 10;
@@ -477,10 +510,10 @@ namespace SuperAdventure
 
             #region 重构后的跟新界面信息
             // Refresh player's inventory list
-            UpdateInventoryListInUI();
+           //// UpdateInventoryListInUI();
 
             // Refresh player's quest list
-            UpdateQuestListInUI();
+            ////UpdateQuestListInUI();
 
             // Refresh player's weapons combobox
             UpdateWeaponListInUI();
@@ -714,7 +747,7 @@ namespace SuperAdventure
 
                 ////UpdatePlayerStats();
 
-                UpdateInventoryListInUI();
+                ////UpdateInventoryListInUI();
                 UpdateWeaponListInUI();
                 UpdatePotionListInUI();
                 // Add a blank line to the messages box, just for appearance.
@@ -805,7 +838,7 @@ namespace SuperAdventure
             }
             // Refresh player data in UI
             ////lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-            UpdateInventoryListInUI();
+            ////UpdateInventoryListInUI();
             UpdatePotionListInUI();
         }
 
