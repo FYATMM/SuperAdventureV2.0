@@ -19,9 +19,35 @@ namespace Engine
     //使用继承避免重复，继承自LivingCreature
     public class Player : LivingCreature
     {
-        public int Gold { get; set; }
-        //设置经验值属性的设置为private，只有通过player的方法才能设置，保证解决方案中所有的经验值增加都按一个逻辑来
-        public int ExperiencePoints { get; private set; }
+        ////现在是一个自动属性，没有地方放代码处理设置属性时调用事件处理方法的地方，要改为带变量的属性
+        //public int Gold { get; set; }
+        ////设置经验值属性的设置为private，只有通过player的方法才能设置，保证解决方案中所有的经验值增加都按一个逻辑来
+        //public int ExperiencePoints { get; private set; }
+
+        private int _gold;
+        private int _experiencePoints;
+
+        public int Gold
+        {
+            get { return _gold; }
+            set
+            {
+                _gold = value;
+                OnPropertyChanged("Gold");
+            }
+        }
+
+        public int ExperiencePoints
+        {
+            get { return _experiencePoints; }
+            private set
+            {
+                _experiencePoints = value;
+                OnPropertyChanged("ExperiencePoints");
+                OnPropertyChanged("Level");//经验值变化时，等级值重新计算，也可能会变化，但在这个小程序中多通知一个没有影响
+            }
+        }
+
         //自动更新等级值 public int Level { get; set; }
         public int Level
         {
