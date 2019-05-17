@@ -6,14 +6,6 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    //class HealPoint
-    //{
-    //    public int ID { get; set; }
-    //    public string Name { get; set; }
-    //    public string  NamePlural { get; set; }
-    //    public int AmoutToHeal { get; set; }
-    //}
-
     //使用继承避免重复，继承自item
     public class HealingPotion : Item
     {
