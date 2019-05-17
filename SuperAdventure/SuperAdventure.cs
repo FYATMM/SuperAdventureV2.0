@@ -89,6 +89,20 @@ namespace SuperAdventure
                 DataPropertyName = "IsCompleted"
             });
 
+            // set up the  comboboxes to bind to the new Player properties.
+            cboWeapons.DataSource = _player.Weapons;
+            cboWeapons.DisplayMember = "Name";
+            cboWeapons.ValueMember = "Id";
+            if (_player.CurrentWeapon != null)
+            {
+                cboWeapons.SelectedItem = _player.CurrentWeapon;
+            }
+            cboWeapons.SelectedIndexChanged += cboWeapons_SelectedIndexChanged;
+            cboPotions.DataSource = _player.Potions;
+            cboPotions.DisplayMember = "Name";
+            cboPotions.ValueMember = "Id";
+            _player.PropertyChanged += PlayerOnPropertyChanged;
+
             MoveTo(_player.CurrentLocation);
             //_player.CurrentHitPoints = 10;
             //_player.MaximumHitPoints = 10;
@@ -183,7 +197,7 @@ namespace SuperAdventure
             // Completely heal the player
             _player.CurrentHitPoints = _player.MaximumHitPoints;
             // Update Hit Points in UI
-           //// lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            //// lblHitPoints.Text = _player.CurrentHitPoints.ToString();
             // Does the location have a quest?
             if (newLocation.QuestAvailableHere != null)
             {
@@ -413,10 +427,14 @@ namespace SuperAdventure
                 {
                     _currentMonster.LootTable.Add(lootItem);
                 }
-                cboWeapons.Visible = true;
-                cboPotions.Visible = true;
-                btnUseWeapon.Visible = true;
-                btnUsePotion.Visible = true;
+                ////cboWeapons.Visible = true;
+                ////cboPotions.Visible = true;
+                ////btnUseWeapon.Visible = true;
+                ////btnUsePotion.Visible = true;
+                cboWeapons.Visible = _player.Weapons.Any();
+                cboPotions.Visible = _player.Potions.Any();
+                btnUseWeapon.Visible = _player.Weapons.Any();
+                btnUsePotion.Visible = _player.Potions.Any();
             }
             else
             {
@@ -510,16 +528,16 @@ namespace SuperAdventure
 
             #region 重构后的跟新界面信息
             // Refresh player's inventory list
-           //// UpdateInventoryListInUI();
+            //// UpdateInventoryListInUI();
 
             // Refresh player's quest list
             ////UpdateQuestListInUI();
 
             // Refresh player's weapons combobox
-            UpdateWeaponListInUI();
+            ////UpdateWeaponListInUI();
 
             // Refresh player's potions combobox
-            UpdatePotionListInUI();
+            ////UpdatePotionListInUI();
             #endregion
 
             ////UpdatePlayerStats();
@@ -604,9 +622,9 @@ namespace SuperAdventure
                 //手动断开/连接一个事件到对应的事件处理方法，事件通过-=、+=来断开或连接
                 //只希望手动更改后，才处理，而不希望第一次设置的时候
                 //After the DataSource is set, we add the event handler function back to the SelectedIndex-Changed event (with the  +=  operator). This way, the function will run when the player changes the value.
-                cboWeapons.SelectedIndexChanged -=  cboWeapons_SelectedIndexChanged;
+                cboWeapons.SelectedIndexChanged -= cboWeapons_SelectedIndexChanged;
                 cboWeapons.DataSource = weapons;
-                cboWeapons.SelectedIndexChanged +=  cboWeapons_SelectedIndexChanged;
+                cboWeapons.SelectedIndexChanged += cboWeapons_SelectedIndexChanged;
 
                 cboWeapons.DisplayMember = "Name";
                 cboWeapons.ValueMember = "ID";
@@ -748,8 +766,8 @@ namespace SuperAdventure
                 ////UpdatePlayerStats();
 
                 ////UpdateInventoryListInUI();
-                UpdateWeaponListInUI();
-                UpdatePotionListInUI();
+                ////UpdateWeaponListInUI();
+                ////UpdatePotionListInUI();
                 // Add a blank line to the messages box, just for appearance.
                 rtbMessages.Text += Environment.NewLine;
 
@@ -809,14 +827,17 @@ namespace SuperAdventure
                 _player.CurrentHitPoints = _player.MaximumHitPoints;
             }
             // Remove the potion from the player's inventory
-            foreach (InventoryItem ii in _player.Inventory)
-            {
-                if (ii.Details.ID == potion.ID)
-                {
-                    ii.Quantity--;
-                    break;
-                }
-            }
+            ////////foreach (InventoryItem ii in _player.Inventory)
+            ////////{
+            ////////    if (ii.Details.ID == potion.ID)
+            ////////    {
+            ////////        ii.Quantity--;
+            ////////        break;
+            ////////    }
+            ////////}
+            //////// Remove the potion from the player's inventory
+            _player.RemoveItemFromInventory(potion, 1);
+
             // Display message
             rtbMessages.Text += "You drink a " + potion.Name + Environment.NewLine;
             // Monster gets their turn to attack
@@ -872,6 +893,42 @@ namespace SuperAdventure
         {
             File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXmlString());
         }
+
+        /*
+             The propertyChangedEventArgs.PropertyName tells us which property was changed on the 
+            Player object. This value comes from the Player.RaiseInventoryChangedEvent function, where 
+            it says OnPropertyChanged("Weapons"), or OnPropertyChanged("Potions").
+            We re-bind the combobox to the Weapons (or Potions) DataSource property, to refresh it 
+            with the current items. Then, we see if the lists are empty, by using !_player.Weapons.Any(). 
+            Remember that Any() tells us if there are any items in the list: true if there are, false if there 
+            are not. So, we are saying, "if there are not any items in the list, set the visibility of the combobox 
+            and 'Use' button to false (not visible)".
+            This is in case we use our last potion in the middle of a fight. Since the player's Potions prop-
+            erty will be an empty list, it will hide the potions combobox and Use button.
+             */
+
+        private void PlayerOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+            if (propertyChangedEventArgs.PropertyName == "Weapons")
+            {
+                cboWeapons.DataSource = _player.Weapons;
+                if (!_player.Weapons.Any())
+                {
+                    cboWeapons.Visible = false;
+                    btnUseWeapon.Visible = false;
+                }
+            }
+            if (propertyChangedEventArgs.PropertyName == "Potions")
+            {
+                cboPotions.DataSource = _player.Potions;
+                if (!_player.Potions.Any())
+                {
+                    cboPotions.Visible = false;
+                    btnUsePotion.Visible = false;
+                }
+            }
+        }
+
     }
 }
 

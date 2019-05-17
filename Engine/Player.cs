@@ -67,6 +67,25 @@ namespace Engine
         public BindingList<InventoryItem> Inventory { get; set; }
         public BindingList<PlayerQuest> Quests { get; set; }
 
+        public List<Weapon> Weapons
+        {
+            get
+            {
+                return Inventory.Where(
+              x => x.Details is Weapon).Select(
+                  x => x.Details as Weapon).ToList();
+            }
+        }
+        public List<HealingPotion> Potions
+        {
+            get
+            {
+                return Inventory.Where(
+              x => x.Details is HealingPotion).Select(
+                  x => x.Details as HealingPotion).ToList();
+            }
+        }
+
         #region 构造函数
         //public Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints//, int level
         //    ) :
@@ -80,7 +99,7 @@ namespace Engine
         //    Quests = new List<PlayerQuest>();
         //}
 
-            //构造函数设置为private，通过方法调用,可以不用生成对象直接在类内部调用
+        //构造函数设置为private，通过方法调用,可以不用生成对象直接在类内部调用
         private Player(int currentHitPoints, int maximumHitPoints, int gold, int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
             Gold = gold;
@@ -311,14 +330,16 @@ namespace Engine
                 if (item != null)
                 {
                     // Subtract the quantity from the player's inventory that was needed to complete the quest
-                    item.Quantity -= qci.Quantity;
+                    ////item.Quantity -= qci.Quantity;
+                    RemoveItemFromInventory(item.Details, qci.Quantity);
                 }
             }
         }
         #endregion
 
         #region 从UI的长代码中，重构出来，完成关卡的奖励
-        public void AddItemToInventory(Item itemToAdd)
+        ////////public void AddItemToInventory(Item itemToAdd)
+        public void AddItemToInventory(Item itemToAdd ,  int quantity = 1)
         {
             //用LINQ代替foreach
             //foreach (InventoryItem ii in Inventory)
@@ -345,13 +366,17 @@ namespace Engine
             if (item == null)
             {
                 // They didn't have the item, so add it to their inventory, with a quantity of 1
-                Inventory.Add(new InventoryItem(itemToAdd, 1));
+                ////Inventory.Add(new InventoryItem(itemToAdd, 1));
+                Inventory.Add(new InventoryItem(itemToAdd, quantity));
             }
             else
             {
                 // They have the item in their inventory, so increase the quantity by one
-                item.Quantity++;
+                ////item.Quantity++;
+                item.Quantity += quantity;
             }
+            ////////
+            RaiseInventoryChangedEvent(itemToAdd);
         }
         #endregion
 
@@ -479,5 +504,46 @@ namespace Engine
         }
         #endregion
 
+        public void RemoveItemFromInventory(Item itemToRemove, int quantity = 1)
+        {
+            InventoryItem item = Inventory.SingleOrDefault(
+                ii => ii.Details.ID == itemToRemove.ID);
+            if (item == null)
+            {
+                // The item is not in the player's inventory, so ignore it.
+                // We might want to raise an error for this situation
+            }
+            else
+            {
+                // They have the item in their inventory,  so decrease the quantity
+                item.Quantity -= quantity;
+                // Don't allow negative quantities.  We might want to raise an error for this situation
+                if (item.Quantity < 0)
+                {
+                    item.Quantity = 0;
+                }
+                // If the quantity is zero, remove the item from the list
+                if (item.Quantity == 0)
+                {
+                    Inventory.Remove(item);
+                }
+                // Notify the UI that the inventory has changed
+                RaiseInventoryChangedEvent(itemToRemove);
+            }
+        }
+        private void RaiseInventoryChangedEvent(Item item)
+        {
+            if (item is Weapon)
+            {
+                OnPropertyChanged("Weapons");
+            }
+            if (item is HealingPotion)
+            {
+                OnPropertyChanged("Potions");
+            }
+        }
+
+
     }
 }
+
