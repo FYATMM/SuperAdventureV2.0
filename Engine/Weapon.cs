@@ -12,7 +12,7 @@ namespace Engine
         public int MinimumDamage { get; set; }
         public int MaximumDamage { get; set; }
 
-        public Weapon(int id, string name, string namePllural, int minimumDamage, int maximumDamage) : base(id, name, namePllural)
+        public Weapon(int id, string name, string namePllural, int minimumDamage, int maximumDamage, int price) : base(id, name, namePllural,price)
         {
             MinimumDamage = minimumDamage;
             MaximumDamage = maximumDamage;
