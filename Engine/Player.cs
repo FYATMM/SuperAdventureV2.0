@@ -17,8 +17,6 @@ namespace Engine
         private Monster _currentMonster;
         private Location _currentLocation;
 
-        public event EventHandler<MessageEventArgs> OnMessage;
-
         public int Gold
         {
             get { return _gold; }
@@ -168,8 +166,6 @@ namespace Engine
             if (!HasRequiredItemToEnterThisLocation(newLocation))
             {
                 // Environment.NewLine摘要: 获取为此环境定义的换行字符串。对于非 Unix 平台为包含“\r\n”的字符串，对于 Unix 平台则为包含“\n”的字符串。     
-                ////rtbMessages.Text +="You must have a " + newLocation.ItemRequiredToEnter.Name + " to enter this location." + Environment.NewLine;
-                ////ScrollToBottomOfMessages();
                 RaiseMessage("You must have a " + newLocation.ItemRequiredToEnter.Name + " to enter this location."); //Here, we take the text in the rtbMessages RichTextBox, and add our new message to the end of it. That way, the player can still see the old messages.If we used the = sign instead, it would replace the existing Text value with our new message.
 
                 return;// we don't want to do the rest of the function, which would actually move them to the location.
@@ -177,58 +173,32 @@ namespace Engine
             #endregion
 
             CurrentLocation = newLocation;////_player.CurrentLocation = newLocation;// Update the player's current location
-            //????// Show/hide available movement buttons
-            ////btnNorth.Visible = (newLocation.LocationToNorth != null);
-            ////btnEast.Visible = (newLocation.LocationToEast != null);
-            ////btnSouth.Visible = (newLocation.LocationToSouth != null);
-            ////btnWest.Visible = (newLocation.LocationToWest != null);
-
-            // Display current location name and description
-            ////rtbLocation.Text = newLocation.Name + Environment.NewLine;
-            ////rtbLocation.Text += newLocation.Description + Environment.NewLine;
-            // Completely heal the player
-            CurrentHitPoints = MaximumHitPoints;////_player.CurrentHitPoints = _player.MaximumHitPoints;
-            // Update Hit Points in UI
-            //// lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            CurrentHitPoints = MaximumHitPoints;////_player.CurrentHitPoints = _player.MaximumHitPoints; // Completely heal the player
 
             // Does the location have a quest?
             if (newLocation.QuestAvailableHere != null)
             {
                 #region 重构后的，是否有这个关卡，这个关卡是否完成，的调用
-                // See if the player already has the quest, and if they've completed it
-                ////bool playerAlreadyHasQuest = _player.HasThisQuest(newLocation.QuestAvailableHere);
-                bool playerAlreadyHasQuest = HasThisQuest(newLocation.QuestAvailableHere);
-                ////bool playerAlreadyCompletedQuest = _player.CompletedThisQuest(newLocation.QuestAvailableHere);
-                bool playerAlreadyCompletedQuest = CompletedThisQuest(newLocation.QuestAvailableHere);
+                // See if the player already has the quest, and if they've completed it                
+                bool playerAlreadyHasQuest = HasThisQuest(newLocation.QuestAvailableHere);////bool playerAlreadyHasQuest = _player.HasThisQuest(newLocation.QuestAvailableHere);                
+                bool playerAlreadyCompletedQuest = CompletedThisQuest(newLocation.QuestAvailableHere);////bool playerAlreadyCompletedQuest = _player.CompletedThisQuest(newLocation.QuestAvailableHere);
                 #endregion
                 // See if the player already has the quest
                 if (playerAlreadyHasQuest)
                 {
                     // If the player has not completed the quest yet
                     if (!playerAlreadyCompletedQuest)
-                    {
-                        ////bool playerHasAllItemsToCompleteQuest = _player.HasAllQuestCompletionItems(newLocation.QuestAvailableHere);// See if the player has all the items needed to complete the quest重构后的，判断玩家是否有完成相应关卡的所有物品
-                        bool playerHasAllItemsToCompleteQuest = HasAllQuestCompletionItems(newLocation.QuestAvailableHere);
+                    {                        
+                        bool playerHasAllItemsToCompleteQuest = HasAllQuestCompletionItems(newLocation.QuestAvailableHere);////bool playerHasAllItemsToCompleteQuest = _player.HasAllQuestCompletionItems(newLocation.QuestAvailableHere);// See if the player has all the items needed to complete the quest重构后的，判断玩家是否有完成相应关卡的所有物品
                         // The player has all items required to complete the quest
                         if (playerHasAllItemsToCompleteQuest)
                         {
                             // Display message
-                            ////rtbMessages.Text += Environment.NewLine;
-                            ////rtbMessages.Text += "You complete the " + newLocation.QuestAvailableHere.Name + " quest." + Environment.NewLine;
-                            ////ScrollToBottomOfMessages();
                             RaiseMessage("");
                             RaiseMessage("You complete the " + newLocation.QuestAvailableHere.Name + " quest." );
+                            
+                            RemoveQuestCompletionItems(newLocation.QuestAvailableHere);////_player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);// Remove quest items from inventory 重构后的，移除完成关卡用掉的物品
 
-                            ////_player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);// Remove quest items from inventory 重构后的，移除完成关卡用掉的物品
-                            RemoveQuestCompletionItems(newLocation.QuestAvailableHere);
-
-                            // Give quest rewards
-                            ////rtbMessages.Text += "You receive: " + Environment.NewLine;
-                            ////rtbMessages.Text += newLocation.QuestAvailableHere.RewardExperiencePoints.ToString() + " experience points" + Environment.NewLine;
-                            ////rtbMessages.Text += newLocation.QuestAvailableHere.RewardGold.ToString() + " gold" + Environment.NewLine;
-                            ////rtbMessages.Text += newLocation.QuestAvailableHere.RewardItem.Name + Environment.NewLine;
-                            ////rtbMessages.Text += Environment.NewLine;
-                            ////ScrollToBottomOfMessages();
                             RaiseMessage("You receive: ");
                             RaiseMessage(newLocation.QuestAvailableHere.RewardExperiencePoints.ToString() + " experience points");
                             RaiseMessage(newLocation.QuestAvailableHere.RewardGold.ToString() + " gold");
@@ -246,12 +216,6 @@ namespace Engine
                 }
                 else// The player does not already have the quest
                 {
-                    ////rtbMessages.Text += "You receive the " + newLocation.QuestAvailableHere.Name + " quest." + Environment.NewLine;// Display the messages
-                    ////ScrollToBottomOfMessages();
-                    ////rtbMessages.Text += newLocation.QuestAvailableHere.Description + Environment.NewLine;
-                    ////ScrollToBottomOfMessages();
-                    ////rtbMessages.Text += "To complete it, return with:" + Environment.NewLine;
-                    ////ScrollToBottomOfMessages();
                     RaiseMessage("You receive the " + newLocation.QuestAvailableHere.Name + " quest.");
                     RaiseMessage(newLocation.QuestAvailableHere.Description);
                     RaiseMessage("To complete it, return with:");
@@ -260,19 +224,13 @@ namespace Engine
                     {
                         if (qci.Quantity == 1)
                         {
-                            ////rtbMessages.Text += qci.Quantity.ToString() + " " + qci.Details.Name + Environment.NewLine;
-                            ////ScrollToBottomOfMessages();
                             RaiseMessage(qci.Quantity.ToString() + " " + qci.Details.Name);
                         }
                         else
                         {
-                            ////rtbMessages.Text += qci.Quantity.ToString() + " " + qci.Details.NamePlural + Environment.NewLine;
-                            ////ScrollToBottomOfMessages();
                             RaiseMessage(qci.Quantity.ToString() + " " + qci.Details.NamePlural);
                         }
                     }
-                    ////rtbMessages.Text += Environment.NewLine;
-                    ////ScrollToBottomOfMessages();
                     RaiseMessage("");
 
                     Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere)); ////_player.Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere)); // Add the quest to the player's quest list
@@ -281,8 +239,6 @@ namespace Engine
             // Does the location have a monster?
             if (newLocation.MonsterLivingHere != null)
             {
-                ////rtbMessages.Text += "You see a " + newLocation.MonsterLivingHere.Name + Environment.NewLine;
-                ////ScrollToBottomOfMessages();
                 RaiseMessage("You see a " + newLocation.MonsterLivingHere.Name);
                 // Make a new monster, using the values from the standard monster in the World.Monster list
                 Monster standardMonster = World.MonsterByID(newLocation.MonsterLivingHere.ID);
@@ -295,30 +251,11 @@ namespace Engine
                 {
                     _currentMonster.LootTable.Add(lootItem);
                 }
-                ////cboWeapons.Visible = true;
-                ////cboPotions.Visible = true;
-                ////btnUseWeapon.Visible = true;
-                ////btnUsePotion.Visible = true;
-                ////cboWeapons.Visible = _player.Weapons.Any();
-                ////cboPotions.Visible = _player.Potions.Any();
-                ////btnUseWeapon.Visible = _player.Weapons.Any();
-                ////btnUsePotion.Visible = _player.Potions.Any();
             }
             else
             {
                 _currentMonster = null;
-                ////cboWeapons.Visible = false;
-                ////cboPotions.Visible = false;
-                ////btnUseWeapon.Visible = false;
-                ////btnUsePotion.Visible = false;
             }
-
-            //// 重构后的跟新界面信息
-            //// UpdateInventoryListInUI();
-            ////UpdateQuestListInUI();
-            ////UpdateWeaponListInUI();
-            ////UpdatePotionListInUI();
-            ////UpdatePlayerStats();
         }
 
         public void MoveHome()
@@ -361,26 +298,18 @@ namespace Engine
 
         public void UseWeapon(Weapon weapon)
         {
-            // Determine the amount of damage to do to the monster
-            int damageToMonster = RandomNumberGenerator.NumberBetween(
-                weapon.MinimumDamage, weapon.MaximumDamage);
-            // Apply the damage to the monster's CurrentHitPoints
-            _currentMonster.CurrentHitPoints -= damageToMonster;
-            // Display message
-            RaiseMessage("You hit the " + _currentMonster.Name +
-                " for " + damageToMonster + " points.");
+            int damageToMonster = RandomNumberGenerator.NumberBetween( weapon.MinimumDamage, weapon.MaximumDamage);// Determine the amount of damage to do to the monster           
+            _currentMonster.CurrentHitPoints -= damageToMonster; // Apply the damage to the monster's CurrentHitPoints            
+            RaiseMessage("You hit the " + _currentMonster.Name +" for " + damageToMonster + " points.");// Display message
             // Check if the monster is dead
-            if (_currentMonster.CurrentHitPoints <= 0)
-            {
-                // Monster is dead
+            if (_currentMonster.CurrentHitPoints <= 0)// Monster is dead
+            {                
                 RaiseMessage("");
                 RaiseMessage("You defeated the " + _currentMonster.Name);
-                // Give player experience points for killing the monster
-                AddExperiencePoints(_currentMonster.RewardExperiencePoints);
-                RaiseMessage("You receive " + _currentMonster.RewardExperiencePoints +
-                    " experience points");
-                // Give player gold for killing the monster 
-                Gold += _currentMonster.RewardGold;
+                
+                AddExperiencePoints(_currentMonster.RewardExperiencePoints);// Give player experience points for killing the monster
+                RaiseMessage("You receive " + _currentMonster.RewardExperiencePoints +" experience points");                
+                Gold += _currentMonster.RewardGold;// Give player gold for killing the monster 
                 RaiseMessage("You receive " + _currentMonster.RewardGold + " gold");
                 // Get random loot items from the monster
                 List<InventoryItem> lootedItems = new List<InventoryItem>();
@@ -409,37 +338,25 @@ namespace Engine
                     AddItemToInventory(inventoryItem.Details);
                     if (inventoryItem.Quantity == 1)
                     {
-                        RaiseMessage("You loot " +
-                            inventoryItem.Quantity + " " + inventoryItem.Details.Name);
+                        RaiseMessage("You loot " + inventoryItem.Quantity + " " + inventoryItem.Details.Name);
                     }
                     else
                     {
-                        RaiseMessage("You loot " + inventoryItem.Quantity +
-                            " " + inventoryItem.Details.NamePlural);
+                        RaiseMessage("You loot " + inventoryItem.Quantity + " " + inventoryItem.Details.NamePlural);
                     }
-                }
-                // Add a blank line to the messages box, just for appearance.
-                RaiseMessage("");
-                // Move player to current location (to heal player and create a new monster to fight)
-      MoveTo(CurrentLocation);
+                }                
+                RaiseMessage("");// Add a blank line to the messages box, just for appearance.                                 
+                MoveTo(CurrentLocation);// Move player to current location (to heal player and create a new monster to fight)
             }
-            else
-            {
-                // Monster is still alive
-                // Determine the amount of damage the monster does to the player
-                int damageToPlayer = RandomNumberGenerator.NumberBetween(
-                    0, _currentMonster.MaximumDamage);
-                // Display message
-                RaiseMessage("The " + _currentMonster.Name + " did " +
-                    damageToPlayer + " points of damage.");
-                // Subtract damage from player
-                CurrentHitPoints -= damageToPlayer;
+            else// Monster is still alive
+            {            
+                int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);// Determine the amount of damage the monster does to the player                
+                RaiseMessage("The " + _currentMonster.Name + " did " + damageToPlayer + " points of damage.");// Display message                
+                CurrentHitPoints -= damageToPlayer;// Subtract damage from player
                 if (CurrentHitPoints <= 0)
-                {
-                    // Display message
-                    RaiseMessage("The " + _currentMonster.Name + " killed you.");
-                    // Move player to "Home"
-                    MoveHome();
+                {                    
+                    RaiseMessage("The " + _currentMonster.Name + " killed you.");// Display message                    
+                    MoveHome();// Move player to "Home"
                 }
             }
         }
@@ -474,8 +391,6 @@ namespace Engine
                 MoveHome();
             }
         }
-
-
 
         #region  处里经验值属性的方法
         public void AddExperiencePoints(int experiencePointsToAdd)
@@ -695,9 +610,8 @@ namespace Engine
                 if (item.Quantity == 0)
                 {
                     Inventory.Remove(item);
-                }
-                // Notify the UI that the inventory has changed
-                RaiseInventoryChangedEvent(itemToRemove);
+                }                
+                RaiseInventoryChangedEvent(itemToRemove);// Notify the UI that the inventory has changed
             }
         }
         #endregion
@@ -718,7 +632,7 @@ namespace Engine
         #endregion
 
         #region 事件
-        ////public event EventHandler<MessageEventArgs> OnMessage;
+        public event EventHandler<MessageEventArgs> OnMessage;
 
         private void RaiseMessage(string message, bool addExtraNewLine = false)
         {
