@@ -30,7 +30,8 @@ namespace Engine
             MaximumHitPoints = maximumHitPoints;
         }
 
-        //UI订阅这个事件
+        #region 事件
+        //UI订阅这个事件,接口的实现
         public event PropertyChangedEventHandler PropertyChanged;
         //检查是否有订阅，没有订阅为null，不是null就是订阅了，当属性值变化时，抛出事件
         protected void OnPropertyChanged(string name)
@@ -40,5 +41,6 @@ namespace Engine
                 PropertyChanged(this, new PropertyChangedEventArgs(name));
             }
         }
+        #endregion
     }
 }

@@ -17,7 +17,7 @@ namespace SuperAdventure
         #region 属性
         private Player _player;
 
-        private Monster _currentMonster;
+        ////private Monster _currentMonster;
 
         private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
         #endregion
@@ -27,7 +27,7 @@ namespace SuperAdventure
         {
             InitializeComponent();
 
-            ////////读取xml创建玩家
+               ////////读取xml创建玩家
             //通过构造函数初始化属性，不用一个一个手写赋值了
             //_player = new Player(10, 10, 20, 0, 1);更改构造函数后也不需要实例化时传参了
             //////// _player = new Player(10, 10, 20, 0);
@@ -52,7 +52,7 @@ namespace SuperAdventure
             {
                 _player = Player.CreateDefaultPlayer();
             }
-
+            _player.OnMessage += DisplayMessage;//监视玩家的message事件，并调用对用的显示消息方法
             //bind the labels to the properties
             lblHitPoints.DataBindings.Add("Text", _player, "CurrentHitPoints");
             lblGold.DataBindings.Add("Text", _player, "Gold");
@@ -106,7 +106,8 @@ namespace SuperAdventure
             cboPotions.ValueMember = "Id";
             _player.PropertyChanged += PlayerOnPropertyChanged;
 
-            MoveTo(_player.CurrentLocation);
+            //????//MoveTo(_player.CurrentLocation);??
+            _player.MoveHome();
             //_player.CurrentHitPoints = 10;
             //_player.MaximumHitPoints = 10;
             //_player.Gold = 20;
@@ -123,146 +124,25 @@ namespace SuperAdventure
         #endregion
 
         #region 方法
-        #region 移动后
-        private void MoveTo(Location newLocation)
+        #region 移动
+        private void btnNorth_Click(object sender, EventArgs e)
         {
-            #region  重构后的是否有进入当前位置的物品，的调用
-            // Does the location have any required items
-            if (!_player.HasRequiredItemToEnterThisLocation(newLocation))// We didn't find the required item in their inventory, so display a message and stop trying to move
-            {
-                // Environment.NewLine摘要: 获取为此环境定义的换行字符串。对于非 Unix 平台为包含“\r\n”的字符串，对于 Unix 平台则为包含“\n”的字符串。     
-                rtbMessages.Text += "You must have a " + newLocation.ItemRequiredToEnter.Name + " to enter this location." + Environment.NewLine;//Here, we take the text in the rtbMessages RichTextBox, and add our new message to the end of it. That way, the player can still see the old messages.If we used the = sign instead, it would replace the existing Text value with our new message.
-                ScrollToBottomOfMessages();
-                return;// we don't want to do the rest of the function, which would actually move them to the location.
-            }
-            #endregion
-            
-            _player.CurrentLocation = newLocation;// Update the player's current location
-            // Show/hide available movement buttons
-            btnNorth.Visible = (newLocation.LocationToNorth != null);
-            btnEast.Visible = (newLocation.LocationToEast != null);
-            btnSouth.Visible = (newLocation.LocationToSouth != null);
-            btnWest.Visible = (newLocation.LocationToWest != null);
-            // Display current location name and description
-            rtbLocation.Text = newLocation.Name + Environment.NewLine;
-            rtbLocation.Text += newLocation.Description + Environment.NewLine;
-            // Completely heal the player
-            _player.CurrentHitPoints = _player.MaximumHitPoints;
-            // Update Hit Points in UI
-            //// lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            _player.MoveNorth();
+        }
 
-            // Does the location have a quest?
-            if (newLocation.QuestAvailableHere != null)
-            {
-                #region 重构后的，是否有这个关卡，这个关卡是否完成，的调用
-                // See if the player already has the quest, and if they've completed it
-                bool playerAlreadyHasQuest =  _player.HasThisQuest(newLocation.QuestAvailableHere);
-                bool playerAlreadyCompletedQuest =  _player.CompletedThisQuest(newLocation.QuestAvailableHere);
-                #endregion
-                // See if the player already has the quest
-                if (playerAlreadyHasQuest)
-                {
-                    // If the player has not completed the quest yet
-                    if (!playerAlreadyCompletedQuest)
-                    {
-                        bool playerHasAllItemsToCompleteQuest = _player.HasAllQuestCompletionItems(newLocation.QuestAvailableHere);// See if the player has all the items needed to complete the quest重构后的，判断玩家是否有完成相应关卡的所有物品
+        private void btnEast_Click(object sender, EventArgs e)
+        {
+            _player.MoveEast();
+        }
 
-                        // The player has all items required to complete the quest
-                        if (playerHasAllItemsToCompleteQuest)
-                        {
-                            // Display message
-                            rtbMessages.Text += Environment.NewLine;
-                            rtbMessages.Text += "You complete the " +  newLocation.QuestAvailableHere.Name + " quest." + Environment.NewLine;
-                            ScrollToBottomOfMessages();
+        private void btnSouth_Click(object sender, EventArgs e)
+        {
+            _player.MoveSouth();
+        }
 
-                            _player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);// Remove quest items from inventory 重构后的，移除完成关卡用掉的物品
-
-                            // Give quest rewards
-                            rtbMessages.Text += "You receive: " + Environment.NewLine;
-                            rtbMessages.Text += newLocation.QuestAvailableHere.RewardExperiencePoints.ToString() + " experience points" + Environment.NewLine;
-                            rtbMessages.Text += newLocation.QuestAvailableHere.RewardGold.ToString() + " gold" + Environment.NewLine;
-                            rtbMessages.Text += newLocation.QuestAvailableHere.RewardItem.Name + Environment.NewLine;
-                            rtbMessages.Text += Environment.NewLine;
-
-                            ScrollToBottomOfMessages();
-
-                            // 重构后的，完成关卡的奖励
-                            _player.AddExperiencePoints(newLocation.QuestAvailableHere.RewardExperiencePoints);
-                            _player.Gold += newLocation.QuestAvailableHere.RewardGold;                            
-                            _player.AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);// Add the reward item to the player's inventory
-                            
-                            _player.MarkQuestCompleted(newLocation.QuestAvailableHere);// Mark the quest as completed重构后的，标记完成的关卡
-                        }
-                    }
-                }
-                else// The player does not already have the quest
-                {                    
-                    rtbMessages.Text += "You receive the " +  newLocation.QuestAvailableHere.Name +  " quest." + Environment.NewLine;// Display the messages
-                    ScrollToBottomOfMessages();
-                    rtbMessages.Text += newLocation.QuestAvailableHere.Description + Environment.NewLine;
-                    ScrollToBottomOfMessages();
-                    rtbMessages.Text += "To complete it, return with:" + Environment.NewLine;
-                    ScrollToBottomOfMessages();
-
-                    foreach (QuestCompletionItem qci in newLocation.QuestAvailableHere.QuestCompletionItems)
-                    {
-                        if (qci.Quantity == 1)
-                        {
-                            rtbMessages.Text += qci.Quantity.ToString() + " " +  qci.Details.Name + Environment.NewLine;
-                            ScrollToBottomOfMessages();
-                        }
-                        else
-                        {
-                            rtbMessages.Text += qci.Quantity.ToString() + " " +  qci.Details.NamePlural + Environment.NewLine;
-                            ScrollToBottomOfMessages();
-                        }
-                    }
-                    rtbMessages.Text += Environment.NewLine;
-                    ScrollToBottomOfMessages();
-                   
-                    _player.Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere)); // Add the quest to the player's quest list
-                }
-            }
-            // Does the location have a monster?
-            if (newLocation.MonsterLivingHere != null)
-            {
-                rtbMessages.Text += "You see a " + newLocation.MonsterLivingHere.Name +  Environment.NewLine;
-                ScrollToBottomOfMessages();
-                // Make a new monster, using the values from the standard monster in the World.Monster list
-                Monster standardMonster = World.MonsterByID(newLocation.MonsterLivingHere.ID);
-                _currentMonster = new Monster(standardMonster.ID, standardMonster.Name,
-                    standardMonster.MaximumDamage, standardMonster.RewardExperiencePoints,
-                        standardMonster.RewardGold, standardMonster.CurrentHitPoints,
-                            standardMonster.MaximumHitPoints);
-
-                foreach (LootItem lootItem in standardMonster.LootTable)
-                {
-                    _currentMonster.LootTable.Add(lootItem);
-                }
-                ////cboWeapons.Visible = true;
-                ////cboPotions.Visible = true;
-                ////btnUseWeapon.Visible = true;
-                ////btnUsePotion.Visible = true;
-                cboWeapons.Visible = _player.Weapons.Any();
-                cboPotions.Visible = _player.Potions.Any();
-                btnUseWeapon.Visible = _player.Weapons.Any();
-                btnUsePotion.Visible = _player.Potions.Any();
-            }
-            else
-            {
-                _currentMonster = null;
-                cboWeapons.Visible = false;
-                cboPotions.Visible = false;
-                btnUseWeapon.Visible = false;
-                btnUsePotion.Visible = false;
-            }
-
-            //// 重构后的跟新界面信息
-            //// UpdateInventoryListInUI();
-            ////UpdateQuestListInUI();
-            ////UpdateWeaponListInUI();
-            ////UpdatePotionListInUI();
-            ////UpdatePlayerStats();
+        private void btnWest_Click(object sender, EventArgs e)
+        {
+            _player.MoveWest();
         }
         #endregion
 
@@ -414,12 +294,12 @@ namespace SuperAdventure
         }
         #endregion
 
-        #region 自动滚动到Message最底部，查看最新消息
-        private void ScrollToBottomOfMessages()
-        {
-            rtbMessages.SelectionStart = rtbMessages.Text.Length;
-            rtbMessages.ScrollToCaret();
-        }
+        #region ////自动滚动到Message最底部，查看最新消息
+        ////private void ScrollToBottomOfMessages()
+        ////{
+        ////    rtbMessages.SelectionStart = rtbMessages.Text.Length;
+        ////    rtbMessages.ScrollToCaret();
+        ////}
         #endregion
 
         #region 武器和解药属性变化时的事件处理方法，并隐藏对应按键
@@ -451,6 +331,46 @@ namespace SuperAdventure
                     btnUsePotion.Visible = false;
                 }
             }
+            if (propertyChangedEventArgs.PropertyName == "CurrentLocation")
+            {
+                // Show/hide available movement buttons
+                btnNorth.Visible = (_player.CurrentLocation.LocationToNorth != null);
+                btnEast.Visible = ( _player.CurrentLocation.LocationToEast != null);
+                btnSouth.Visible = ( _player.CurrentLocation.LocationToSouth != null);
+                btnWest.Visible = ( _player.CurrentLocation.LocationToWest != null);
+                // Display current location name and description
+                rtbLocation.Text = _player.CurrentLocation.Name +  Environment.NewLine;
+                rtbLocation.Text += _player.CurrentLocation.Description + Environment.NewLine;
+                if (_player.CurrentLocation.MonsterLivingHere == null)
+                {
+                    cboWeapons.Visible = false;
+                    cboPotions.Visible = false;
+                    btnUseWeapon.Visible = false;
+                    btnUsePotion.Visible = false;
+                }
+                else
+                {
+                    cboWeapons.Visible = _player.Weapons.Any();
+                    cboPotions.Visible = _player.Potions.Any();
+                    btnUseWeapon.Visible = _player.Weapons.Any();
+                    btnUsePotion.Visible = _player.Potions.Any();
+                }
+            }
+        }
+        #endregion
+
+        #region 显示消息方法，对应玩家的消息事件；同时把之前的ScrollToBottom方法放进来了
+        private void DisplayMessage(object sender, MessageEventArgs messageEventArgs)
+        {
+            rtbMessages.Text +=
+                messageEventArgs.Message + Environment.NewLine;
+            if (messageEventArgs.AddExtraNewLine)
+            {
+                rtbMessages.Text += Environment.NewLine;
+            }
+            //scroll to bottom of message 自动滚动到Message最底部，查看最新消息
+            rtbMessages.SelectionStart = rtbMessages.Text.Length;
+            rtbMessages.ScrollToCaret();
         }
         #endregion
 
@@ -458,6 +378,7 @@ namespace SuperAdventure
 
         private void btnUseWeapon_Click(object sender, EventArgs e)
         {
+            /*
             Weapon currentWeapon = (Weapon)cboWeapons.SelectedItem;// Get the currently selected weapon from the cboWeapons ComboBox
             int damageToMonster = RandomNumberGenerator.NumberBetween(currentWeapon.MinimumDamage, currentWeapon.MaximumDamage);// Determine the amount of damage to do to the monster
             _currentMonster.CurrentHitPoints -= damageToMonster;// Apply the damage to the monster's CurrentHitPoints
@@ -548,9 +469,14 @@ namespace SuperAdventure
                 }
             }
             ScrollToBottomOfMessages();
+            */
+            // Get the currently selected weapon from the cboWeapons ComboBox
+            Weapon currentWeapon = (Weapon)cboWeapons.SelectedItem;
+            _player.UseWeapon(currentWeapon);
         }
         private void btnUsePotion_Click(object sender, EventArgs e)
         {
+            /*
             HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;// Get the currently selected potion from the combobox
             _player.CurrentHitPoints = (_player.CurrentHitPoints + potion.AmountToHeal);// Add healing amount to the player's current hit points
 
@@ -577,34 +503,16 @@ namespace SuperAdventure
             UpdateInventoryListInUI();
             UpdatePotionListInUI();
              */
-
+            // Get the currently selected potion from the combobox
+            HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
+            _player.UsePotion(potion);
 
 
         }
-
-        private void btnNorth_Click(object sender, EventArgs e)
-        {
-            MoveTo(_player.CurrentLocation.LocationToNorth);
-        }
-        private void btnEast_Click(object sender, EventArgs e)
-        {
-            MoveTo(_player.CurrentLocation.LocationToEast);
-        }
-        private void btnSouth_Click(object sender, EventArgs e)
-        {
-            MoveTo(_player.CurrentLocation.LocationToSouth);
-        }
-        private void btnWest_Click(object sender, EventArgs e)
-        {
-            MoveTo(_player.CurrentLocation.LocationToWest);
-        }
-
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
             File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXmlString());
         }
-
-
     }
 }
 
