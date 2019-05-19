@@ -22,6 +22,8 @@ namespace Engine
         public Location LocationToSouth { get; set; }
         public Location LocationToWest { get; set; }
 
+        public Vendor VendorWorkingHere { get; set; }
+
         //通过构造函数初始化，传入参数，保留相应的属性到特定对象
         public Location(int id, string name, string description,
         Item itemRequiredToEnter = null, Quest questAvailableHere = null, Monster monsterLivingHere = null)
