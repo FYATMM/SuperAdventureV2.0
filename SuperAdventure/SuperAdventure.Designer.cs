@@ -47,6 +47,7 @@ namespace SuperAdventure
             this.btnEast = new System.Windows.Forms.Button();
             this.btnSouth = new System.Windows.Forms.Button();
             this.btnWest = new System.Windows.Forms.Button();
+            this.btnTrade = new System.Windows.Forms.Button();//自己增加按键
             this.rtbLocation = new System.Windows.Forms.RichTextBox();
             this.rtbMessages = new System.Windows.Forms.RichTextBox();
             this.dgvInventory = new System.Windows.Forms.DataGridView();
@@ -210,6 +211,16 @@ namespace SuperAdventure
             this.btnWest.Text = "West";
             this.btnWest.UseVisualStyleBackColor = true;
             this.btnWest.Click += new System.EventHandler(this.btnWest_Click);
+            //
+            // btnTrade，自己增加按键
+            //
+            this.btnTrade.Location = new System.Drawing.Point(493, 620);
+            this.btnTrade.Name = "btnTrade";
+            this.btnTrade.Size = new System.Drawing.Size(75, 23);
+            this.btnTrade.TabIndex = 21;
+            this.btnTrade.Text = "Trade";
+            this.btnTrade.UseVisualStyleBackColor = true;
+            this.btnTrade.Click += new System.EventHandler(this.btnTrade_Click);
             // 
             // rtbLocation
             // 
@@ -275,6 +286,7 @@ namespace SuperAdventure
             this.Controls.Add(this.btnSouth);
             this.Controls.Add(this.btnEast);
             this.Controls.Add(this.btnNorth);
+            this.Controls.Add(this.btnTrade);//自己增加按键
             this.Controls.Add(this.btnUsePotion);
             this.Controls.Add(this.btnUseWeapon);
             this.Controls.Add(this.cboPotions);
@@ -335,6 +347,7 @@ namespace SuperAdventure
         private System.Windows.Forms.Button btnEast;
         private System.Windows.Forms.Button btnSouth;
         private System.Windows.Forms.Button btnWest;
+        private System.Windows.Forms.Button btnTrade;//自己增加按键
         private System.Windows.Forms.RichTextBox rtbLocation;
         private System.Windows.Forms.RichTextBox rtbMessages;
         private System.Windows.Forms.DataGridView dgvInventory;
