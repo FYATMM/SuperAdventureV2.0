@@ -214,6 +214,9 @@ namespace SuperAdventure
         //自己增加按键
         private void btnTrade_Click(object sender, EventArgs e)
         {
+            TradingScreen tradingScreen = new TradingScreen();
+            tradingScreen.StartPosition = FormStartPosition.CenterParent;
+            tradingScreen.ShowDialog(this);
         }
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
