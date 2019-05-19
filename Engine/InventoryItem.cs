@@ -38,10 +38,15 @@ namespace Engine
         //只读属性，描述物品，注意当物品数量大于1时取名称复数
         public string Description
         {
-            get
-            {
-                return Quantity > 1 ? Details.NamePlural : Details.Name;
-            }
+            get{ return Quantity > 1 ? Details.NamePlural : Details.Name;}
+        }
+        public int ItemID
+        {
+            get { return Details.ID; }
+        }
+        public int Price
+        {
+            get { return Details.Price; }
         }
         #endregion
         #region 构造函数

@@ -126,7 +126,7 @@ namespace SuperAdventure
         }
         #endregion
 
-        #region 武器和解药属性变化时的事件处理方法，并隐藏对应按键
+        #region 武器和解药和位置属性变化时的事件处理方法，并隐藏对应按键
         /*
              The propertyChangedEventArgs.PropertyName tells us which property was changed on the Player object. This value comes from the Player.RaiseInventoryChangedEvent function, 
              where it says OnPropertyChanged("Weapons"), or OnPropertyChanged("Potions"). We rebind the combobox to the Weapons (or Potions) DataSource property, to refresh it 
@@ -162,6 +162,8 @@ namespace SuperAdventure
                 btnEast.Visible = ( _player.CurrentLocation.LocationToEast != null);
                 btnSouth.Visible = ( _player.CurrentLocation.LocationToSouth != null);
                 btnWest.Visible = ( _player.CurrentLocation.LocationToWest != null);
+
+                btnTrade.Visible =(_player.CurrentLocation.VendorWorkingHere != null);
                 // Display current location name and description
                 rtbLocation.Text = _player.CurrentLocation.Name +  Environment.NewLine;
                 rtbLocation.Text += _player.CurrentLocation.Description + Environment.NewLine;
@@ -214,7 +216,7 @@ namespace SuperAdventure
         //自己增加按键
         private void btnTrade_Click(object sender, EventArgs e)
         {
-            TradingScreen tradingScreen = new TradingScreen();
+            TradingScreen tradingScreen = new TradingScreen(_player);
             tradingScreen.StartPosition = FormStartPosition.CenterParent;
             tradingScreen.ShowDialog(this);
         }
