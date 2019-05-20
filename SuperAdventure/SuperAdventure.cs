@@ -27,16 +27,21 @@ namespace SuperAdventure
         {
             InitializeComponent();
 
-               ////////读取xml创建玩家
+            ////////读取xml创建玩家
             //通过构造函数初始化属性，不用一个一个手写赋值了
             ////////读取xml创建玩家，判断文件存在不存在
-            if (File.Exists(PLAYER_DATA_FILE_NAME))
+            //////////先从数据库中创建，没有再从XML创建，最后用默认设置创建
+            _player = PlayerDataMapper.CreateFromDatabase();
+            if (_player == null)
             {
-                _player = Player.CreatePlayerFromXmlString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
-            }
-            else
-            {
-                _player = Player.CreateDefaultPlayer();
+                if (File.Exists(PLAYER_DATA_FILE_NAME))
+                {
+                    _player = Player.CreatePlayerFromXmlString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+                }
+                else
+                {
+                    _player = Player.CreateDefaultPlayer();
+                }
             }
             _player.OnMessage += DisplayMessage;//监视玩家的message事件，并调用对用的显示消息方法
             //bind the labels to the properties
@@ -222,7 +227,10 @@ namespace SuperAdventure
         }
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
+            //保存到XML
             File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXmlString());
+            ////保存到数据库
+            PlayerDataMapper.SaveToDatabase(_player);
         }
     }
 }
